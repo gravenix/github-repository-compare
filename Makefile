@@ -1,8 +1,8 @@
 start:
-	docker-compose --env-file .env up -d
+	docker-compose up -d
 
 stop:
-	docker-compose --env-file .env stop
+	docker-compose stop
 
 clean:
-	docker-compose --env-file .env down --remove-orphans
+	docker-compose down --remove-orphans
