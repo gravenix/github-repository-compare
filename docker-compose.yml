@@ -1,0 +1,26 @@
+version: '3'
+
+services: 
+    app:
+        image: webdevops/php-apache-dev:7.4
+        volumes:
+            - ./app:/app
+        ports:
+            - 8000:80
+        env_file: 
+            - .env
+        environment: 
+            - 'WEB_DOCUMENT_ROOT=/app/public'
+        networks:
+            - symfony
+    mysql:
+        image: mysql
+        ports: 
+            - 3306:3306
+        env_file: 
+            - ./.env
+        networks: 
+            - symfony
+
+networks:
+    symfony:
