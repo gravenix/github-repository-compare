@@ -23,3 +23,21 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Controller\GitHubRepoCompareController:
+        public: true
+        arguments:
+            - '@App\Api\GitHub\GitHubApi'
+
+    app.github_client:
+        class: 'GuzzleHttp\Client'
+        arguments:
+            -
+                base_uri: 'https://api.github.com/'
+                headers: 
+                    Accept: 'application/vnd.github.v3+json'
+                    Content-Type: 'application/json'
+
+    App\Api\GitHub\GitHubApi:
+        arguments:
+            - '@app.github_client'

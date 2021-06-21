@@ -4,20 +4,68 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\GitHub\GitHubApi;
 use PHPUnit\Framework\TestCase;
+use App\Entity\RepositoryEntity;
+use App\Comparer\RepositoryComparer;
 use Psr\Container\ContainerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class GitHubRepoCompareControllerTest extends TestCase
 {
-    public function testExample(): void
+    /**
+     * @dataProvider getTestRequestData
+     */
+    public function testControllerRepositoryCompare(array $repos): void
     {
-        $controller = new GitHubRepoCompareController();
+        $api = $this->createMock(GitHubApi::class);
+        $api->method('getRepository')
+            ->willReturnCallback(fn(string $repo) => $this->mockRepository($repo));
+
+        $comparer = $this->createMock(RepositoryComparer::class);
+        $comparer->method('toJson')
+            ->with(\array_map(
+                fn(string $repo) => $this->mockRepository($repo),
+                $repos
+            ))
+            ->willReturn(['some' => 'json']);
+
+        $controller = new GitHubRepoCompareController($api, $comparer);
         // we have to mock container for controllers
         $container = $this->createMock(ContainerInterface::class);
         $controller->setContainer($container);
 
-        $actual = $controller->index(1, 2);
+        $request = $this->createMock(Request::class);
+        $request->method('get')
+            ->with('repositories')
+            ->willReturn($repos);
 
-        static::assertStringContainsString('You are going to compare 1 and 2', $actual->getContent());
+        $actual = $controller->index($request);
+
+        static::assertEquals(
+            new JsonResponse(['some' => 'json']),
+            $actual
+        );
+    }
+
+    public function getTestRequestData(): array
+    {
+        return [
+            [
+                ['test/test', 'another/test']
+            ]
+        ];
+    }
+
+    // todo move to trait ?
+    private function mockRepository(string $name): MockObject
+    {
+        $repo = $this->createMock(RepositoryEntity::class);
+        $repo->method('getName')
+            ->willReturn($name);
+
+        return $repo;
     }
 }

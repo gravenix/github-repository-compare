@@ -2,19 +2,36 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Comparer\ComparerInterface;
+use App\Api\Types\RepositoryApiInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class GitHubRepoCompareController extends AbstractController
 {
-    /**
-     * @Route("/github/repository/compare/{firstRepo}/{secondRepo}", name="github.repository.compare")
-     */
-    public function index(int $firstRepo, int $secondRepo): JsonResponse
+    private RepositoryApiInterface $apiInterface;
+
+    private ComparerInterface $comparer;
+
+    public function __construct(RepositoryApiInterface $api, ComparerInterface $comparer)
     {
-        return $this->json([
-            'message' => "Welcome to your new controller! You are going to compare $firstRepo and $secondRepo"
-        ]);
+        $this->apiInterface = $api;
+        $this->comparer = $comparer;
+    }
+
+    /**
+     * todo docs
+     * @Route("/github/repository/compare", name="github.repository.compare")
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $repositories = \array_map(
+            fn(string $repo) => $this->apiInterface->getRepository($repo), 
+            $request->get('repositories')
+        );
+
+        return $this->json($this->comparer->toJson($repositories));
     }
 }
