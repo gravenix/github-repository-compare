@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Api\GitHub;
 
+use App\Entity\RepositoryReleaseEntity;
+use App\Tests\Helpers\GitHubRepositoryReleaseTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 
 class GitHubApiTest extends TestCase
 {
+    use GitHubRepositoryReleaseTrait;
+
     private Client $client;
 
     protected function setUp(): void
@@ -37,11 +41,52 @@ class GitHubApiTest extends TestCase
 
         $api = new GitHubApi($this->client);
         $repository = $api->getRepository('test/test');
+    }
+
+    /**
+     * @dataProvider provideRepositoryReleasesData
+     */
+    public function testGetReleases(array ...$releases): void
+    {
+        $repo = 'test/test';
+        $expected = \array_map(
+            fn(array $data) => RepositoryReleaseEntity::fromData($data),
+            $releases
+        );
+
+        $response = $this->createMock(Response::class);
+        $response->method('getBody')
+            ->willReturn(\json_encode($releases));
+
+        $this->client
+            ->expects(static::atLeastOnce())
+            ->method('get')
+            ->with('repos/' . $repo . '/releases', [
+                'data' => []
+            ])
+            ->willReturn($response);
+
+        $api = new GitHubApi($this->client);
+        $actual = $api->getRepositoryReleases($repo);
         
-        static::assertEquals($data['forks'], $repository->getForks());
-        static::assertEquals($data['stargazers_count'], $repository->getStars());
-        static::assertEquals($data['subscribers_count'], $repository->getWatchers());
-        static::assertEquals($data['open_issues_count'], $repository->getOpenedIssues());
+        static::assertEquals($expected, $actual);
+    }
+
+    public function provideRepositoryReleasesData(): array
+    {
+        return [
+            [
+                [],
+            ],
+            [
+                ['published_at' => '2021-06-22'],
+            ],
+            [
+                ['published_at' => '2021-06-12'],
+                ['published_at' => '2021-06-02'],
+                ['published_at' => '2021-01-22'],
+            ]
+        ];
     }
 
     public function provideRepositoryData(): array

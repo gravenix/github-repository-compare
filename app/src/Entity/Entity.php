@@ -6,5 +6,5 @@ namespace App\Entity;
 
 interface Entity
 {
-    
+    public static function fromData(array $data): Entity;
 }

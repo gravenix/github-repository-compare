@@ -6,15 +6,16 @@ namespace App\Controller;
 
 use App\Api\GitHub\GitHubApi;
 use PHPUnit\Framework\TestCase;
-use App\Entity\RepositoryEntity;
 use App\Comparer\RepositoryComparer;
+use App\Tests\Helpers\GitHubRepositoryTrait;
 use Psr\Container\ContainerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class GitHubRepoCompareControllerTest extends TestCase
 {
+    use GitHubRepositoryTrait;
+
     /**
      * @dataProvider getTestRequestData
      */
@@ -22,12 +23,12 @@ class GitHubRepoCompareControllerTest extends TestCase
     {
         $api = $this->createMock(GitHubApi::class);
         $api->method('getRepository')
-            ->willReturnCallback(fn(string $repo) => $this->mockRepository($repo));
+            ->willReturnCallback(fn(string $repo) => $this->mockRepository(['name' => $repo]));
 
         $comparer = $this->createMock(RepositoryComparer::class);
         $comparer->method('toJson')
             ->with(\array_map(
-                fn(string $repo) => $this->mockRepository($repo),
+                fn(string $repo) => $this->mockRepository(['name' => $repo]),
                 $repos
             ))
             ->willReturn(['some' => 'json']);
@@ -57,15 +58,5 @@ class GitHubRepoCompareControllerTest extends TestCase
                 ['test/test', 'another/test']
             ]
         ];
-    }
-
-    // todo move to trait ?
-    private function mockRepository(string $name): MockObject
-    {
-        $repo = $this->createMock(RepositoryEntity::class);
-        $repo->method('getName')
-            ->willReturn($name);
-
-        return $repo;
     }
 }

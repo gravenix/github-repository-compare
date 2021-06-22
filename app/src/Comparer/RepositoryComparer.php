@@ -12,6 +12,4 @@ class RepositoryComparer extends EntityComparer
         'forks' => 'getForks',
         'openedIssues' => 'getOpenedIssues',
     ];
-
-    // TODO tests
 }

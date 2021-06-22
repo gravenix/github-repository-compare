@@ -69,7 +69,7 @@ class RepositoryEntity implements Entity
     public static function fromData(array $data): RepositoryEntity
     {
         $repo = new self();
-        $repo->setName($data['name'] ?? '');
+        $repo->setName($data['full_name'] ?? '');
         $repo->setForks($data['forks'] ?? 0);
         $repo->setStars($data['stargazers_count'] ?? 0);
         $repo->setWatchers($data['subscribers_count'] ?? 0);
