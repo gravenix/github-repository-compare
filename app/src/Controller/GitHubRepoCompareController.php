@@ -22,7 +22,7 @@ class GitHubRepoCompareController extends AbstractController
     }
 
     /**
-     * todo docs
+     * todo swagger docs
      * @Route("/github/repository/compare", name="github.repository.compare")
      */
     public function index(Request $request): JsonResponse
@@ -31,8 +31,13 @@ class GitHubRepoCompareController extends AbstractController
             function(string $repoName) {
                 // todo it can be refactored
                 $repo = $this->apiInterface->getRepository($repoName);
+
                 $releases = $this->apiInterface->getRepositoryReleases($repoName);
                 $repo->setLatestRelease($releases[0] ?? null);
+
+                $pulls = $this->apiInterface->getPullRequests($repoName);
+                $repo->setPullRequests($pulls);
+
                 return $repo;
             }, 
             $request->get('repositories')

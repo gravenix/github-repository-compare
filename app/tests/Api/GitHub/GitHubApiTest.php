@@ -72,6 +72,40 @@ class GitHubApiTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
+    public function testGetPullRequests(): void
+    {
+        $repo = 'test/test';
+
+        $buildPath = static fn(int $page) => 'repos/' . $repo . '/pulls?state=all&page=' . $page;
+
+        $prepareResponse = function (array $data) {
+            $response = $this->createMock(Response::class);
+            $response->method('getBody')
+                ->willReturn(\json_encode(
+                    \array_map(static fn(int $id) => ['id' => $id],
+                    $data
+                )));
+
+            return $response;
+        };
+
+        $this->client
+            ->expects(static::exactly(2))
+            ->method('get')
+            ->withConsecutive(
+                [$buildPath(1), ['data' => []]], 
+                [$buildPath(2), ['data' => []]]
+            )->willReturnOnConsecutiveCalls(
+                $prepareResponse(\range(1, 30)), 
+                $prepareResponse(\range(1, 3))
+            );
+
+        $api = new GitHubApi($this->client);
+        $collection = $api->getPullRequests($repo);
+
+        static::assertEquals(33, $collection->count());
+    }
+
     public function provideRepositoryReleasesData(): array
     {
         return [

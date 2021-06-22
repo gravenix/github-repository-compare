@@ -12,9 +12,11 @@ class RepositoryEntity implements Entity
     
     private int $watchers;
 
-    private int $openedIssues;
+    private int $openedIssues; // todo should be opened pull requests / rename 
 
     private string $name;
+
+    private PullRequestCollection $pullRequests;
 
     private ?RepositoryReleaseEntity $latestRelease;
 
@@ -78,6 +80,16 @@ class RepositoryEntity implements Entity
         $this->latestRelease = $latestRelease;
     }
 
+    public function getPullRequests(): PullRequestCollection
+    {
+        return $this->pullRequests;
+    }
+
+    public function setPullRequests(PullRequestCollection $pullRequests): void
+    {
+        $this->pullRequests = $pullRequests;
+    }
+
     public static function fromData(array $data): RepositoryEntity
     {
         $repo = new self();
@@ -86,8 +98,6 @@ class RepositoryEntity implements Entity
         $repo->setStars($data['stargazers_count'] ?? 0);
         $repo->setWatchers($data['subscribers_count'] ?? 0);
         $repo->setOpenedIssues($data['open_issues_count'] ?? 0);
-        //todo closed issues
-        // $repo->setClosedPullRequests($data['pull_requests'] ?? 0);
 
         return $repo;
     }
