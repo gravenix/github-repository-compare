@@ -13,14 +13,6 @@ services:
             - 'WEB_DOCUMENT_ROOT=/app/public'
         networks:
             - symfony
-    mysql:
-        image: mysql
-        ports: 
-            - 3306:3306
-        env_file: 
-            - ./.env
-        networks: 
-            - symfony
 
 networks:
     symfony:
