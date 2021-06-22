@@ -12,4 +12,15 @@ class RepositoryComparer extends EntityComparer
         'forks' => 'getForks',
         'openedIssues' => 'getOpenedIssues',
     ];
+
+    public function toJson(array $entities): array
+    {
+        $result = parent::toJson($entities);
+        foreach ($entities as $entity) {
+            $latestRelease = $entity->getLatestRelease();
+            $result['latestRelease'][$entity->getName()] = $latestRelease ? $latestRelease->getReleaseDate() : null;
+        }
+
+        return $result;
+    }
 }

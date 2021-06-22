@@ -28,7 +28,13 @@ class GitHubRepoCompareController extends AbstractController
     public function index(Request $request): JsonResponse
     {
         $repositories = \array_map(
-            fn(string $repo) => $this->apiInterface->getRepository($repo), 
+            function(string $repoName) {
+                // todo it can be refactored
+                $repo = $this->apiInterface->getRepository($repoName);
+                $releases = $this->apiInterface->getRepositoryReleases($repoName);
+                $repo->setLatestRelease($releases[0] ?? null);
+                return $repo;
+            }, 
             $request->get('repositories')
         );
 

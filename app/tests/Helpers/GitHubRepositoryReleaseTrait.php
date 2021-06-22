@@ -12,7 +12,7 @@ trait GitHubRepositoryReleaseTrait
     {
         $release = $this->createMock(RepositoryReleaseEntity::class);
         $release->method('getReleaseDate')
-            ->willReturn($data['published_at'] ?? null);
+            ->willReturn(new \DateTime($data['published_at']) ?? null);
         $release->method('getRepository')
             ->willReturn($data['repository'] ?? null);
 

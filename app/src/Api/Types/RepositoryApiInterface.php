@@ -9,4 +9,9 @@ use App\Entity\RepositoryEntity;
 interface RepositoryApiInterface 
 {
     public function getRepository(string $repositoryName): RepositoryEntity;
+
+    /**
+     * @return array<RepositoryReleaseEntity>
+     */
+    public function getRepositoryReleases(string $repositoryName): array;
 }

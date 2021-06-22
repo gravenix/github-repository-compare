@@ -16,6 +16,8 @@ class RepositoryEntity implements Entity
 
     private string $name;
 
+    private ?RepositoryReleaseEntity $latestRelease;
+
     public function getName(): string
     {
         return $this->name;
@@ -64,6 +66,16 @@ class RepositoryEntity implements Entity
     public function setOpenedIssues(int $openedIssues): void
     {
         $this->openedIssues = $openedIssues;
+    }
+
+    public function getLatestRelease(): ?RepositoryReleaseEntity
+    {
+        return $this->latestRelease;
+    }
+
+    public function setLatestRelease(?RepositoryReleaseEntity $latestRelease): void
+    {
+        $this->latestRelease = $latestRelease;
     }
 
     public static function fromData(array $data): RepositoryEntity
